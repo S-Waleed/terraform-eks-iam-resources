@@ -8,10 +8,10 @@ terraform {
     }
   }
 
-  backend "s3" {
-    key      = "tf-aws-iam-resources/terraform-main.tfstate"
-    bucket   = "cloudly-engineer-sandbox-tf-state"
-    region   = "us-east-2"
-    role_arn = "arn:aws:iam::583202145612:role/svc-terraform-role"
-  }
+  # backend "s3" {
+  #   key      = ""
+  #   bucket   = ""
+  #   region   = ""
+  #   role_arn = ""
+  # }
 }

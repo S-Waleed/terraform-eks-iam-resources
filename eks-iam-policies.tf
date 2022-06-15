@@ -357,3 +357,130 @@ resource "aws_iam_policy" "cluster_version" {
     "Name" = "eks-cluster-version"
   }
 }
+
+# todo: Customize arn:aws:iam::aws:policy/AmazonEKSClusterPolicy
+# with conditions to restrict calls from network
+
+data "aws_iam_policy_document" "cluster_role" {
+
+  statement {
+    sid    = "write"
+    effect = "Allow"
+    actions = [
+      "autoscaling:UpdateAutoScalingGroup",
+      "ec2:AttachVolume",
+      "ec2:AuthorizeSecurityGroupIngress",
+      "ec2:CreateRoute",
+      "ec2:CreateSecurityGroup",
+      "ec2:CreateTags",
+      "ec2:CreateVolume",
+      "ec2:DeleteRoute",
+      "ec2:DeleteSecurityGroup",
+      "ec2:DeleteVolume",
+      "ec2:DetachVolume",
+      "ec2:ModifyInstanceAttribute",
+      "ec2:ModifyVolume",
+      "ec2:RevokeSecurityGroupIngress",
+      "elasticloadbalancing:AddTags",
+      "elasticloadbalancing:ApplySecurityGroupsToLoadBalancer",
+      "elasticloadbalancing:AttachLoadBalancerToSubnets",
+      "elasticloadbalancing:ConfigureHealthCheck",
+      "elasticloadbalancing:CreateListener",
+      "elasticloadbalancing:CreateLoadBalancer",
+      "elasticloadbalancing:CreateLoadBalancerListeners",
+      "elasticloadbalancing:CreateLoadBalancerPolicy",
+      "elasticloadbalancing:CreateTargetGroup",
+      "elasticloadbalancing:DeleteListener",
+      "elasticloadbalancing:DeleteLoadBalancer",
+      "elasticloadbalancing:DeleteLoadBalancerListeners",
+      "elasticloadbalancing:DeleteTargetGroup",
+      "elasticloadbalancing:DeregisterInstancesFromLoadBalancer",
+      "elasticloadbalancing:DeregisterTargets",
+      "elasticloadbalancing:DetachLoadBalancerFromSubnets",
+      "elasticloadbalancing:ModifyListener",
+      "elasticloadbalancing:ModifyLoadBalancerAttributes",
+      "elasticloadbalancing:ModifyTargetGroup",
+      "elasticloadbalancing:ModifyTargetGroupAttributes",
+      "elasticloadbalancing:RegisterInstancesWithLoadBalancer",
+      "elasticloadbalancing:RegisterTargets",
+      "elasticloadbalancing:SetLoadBalancerPoliciesForBackendServer",
+      "elasticloadbalancing:SetLoadBalancerPoliciesOfListener"
+    ]
+
+    resources = [
+      "*"
+    ]
+
+    # Only allow if it's another AWS service
+    condition {
+      test     = "Bool"
+      variable = "aws:ViaAWSService"
+      values   = ["true"]
+    }
+
+    # Only allow if the call is from this same account
+    condition {
+      test     = "StringEquals"
+      variable = "aws:SourceAccount"
+      values   = [data.aws_caller_identity.current.account_id]
+    }
+
+    # condition {
+    #   test     = "IpAddress"
+    #   variable = "aws:SourceIp"
+    #   values   = [local.current_ip_address]
+    # }
+  }
+
+  statement {
+    sid    = "read"
+    effect = "Allow"
+    actions = [
+      "autoscaling:DescribeAutoScalingGroups",
+      "kms:DescribeKey",
+      "elasticloadbalancing:DescribeListeners",
+      "elasticloadbalancing:DescribeLoadBalancerAttributes",
+      "elasticloadbalancing:DescribeLoadBalancerPolicies",
+      "elasticloadbalancing:DescribeLoadBalancers",
+      "elasticloadbalancing:DescribeTargetGroupAttributes",
+      "elasticloadbalancing:DescribeTargetGroups",
+      "elasticloadbalancing:DescribeTargetHealth",
+      "ec2:DescribeAccountAttributes",
+      "ec2:DescribeAddresses",
+      "ec2:DescribeInternetGateways",
+      "ec2:DescribeInstances",
+      "ec2:DescribeRouteTables",
+      "ec2:DescribeSecurityGroups",
+      "ec2:DescribeSubnets",
+      "ec2:DescribeVolumes",
+      "ec2:DescribeVolumesModifications",
+      "ec2:DescribeVpcs",
+      "ec2:DescribeDhcpOptions",
+      "ec2:DescribeNetworkInterfaces"
+    ]
+
+    resources = ["*"]
+
+  }
+
+  statement {
+    effect    = "Allow"
+    actions   = ["iam:CreateServiceLinkedRole"]
+    resources = ["*"]
+    condition {
+      test     = "StringEquals"
+      variable = "iam:AWSServiceName"
+      values   = ["elasticloadbalancing.amazonaws.com"]
+    }
+  }
+}
+
+resource "aws_iam_policy" "cluster_role" {
+  name   = "eks-cluster-role"
+  path   = "/"
+  policy = data.aws_iam_policy_document.cluster_role.json
+
+  tags = {
+    "Name" = "eks-cluster-role"
+  }
+}

@@ -12,3 +12,8 @@ variable "account_id" {
   type        = string
   description = "AWS Account ID number of the account."
 }
+
+variable "eks_cluster_id" {
+  description = "EKS Cluster Id"
+  type        = string
+}

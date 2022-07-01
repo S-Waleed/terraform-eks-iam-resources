@@ -15,7 +15,7 @@ locals {
     aws_partition_id               = data.aws_partition.current.partition
     aws_region_name                = data.aws_region.current.name
     eks_oidc_issuer_url            = local.eks_oidc_issuer_url
-    eks_cluster_id                 = module.eks_blueprints.eks_cluster_id
+    eks_cluster_id                 = aws_eks_cluster.this.id
     eks_oidc_provider_arn          = "arn:${data.aws_partition.current.partition}:iam::${data.aws_caller_identity.current.account_id}:oidc-provider/${local.eks_oidc_issuer_url}"
     tags                           = local.required_tags
   }

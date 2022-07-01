@@ -357,3 +357,46 @@ resource "aws_iam_policy" "cluster_version" {
     "Name" = "eks-cluster-version"
   }
 }
+
+# #########################################
+# Amazon VPC CNI IPV6
+# #########################################
+
+data "aws_iam_policy_document" "vpc_cni_ipv6" {
+
+  statement {
+    actions = [
+      "ec2:AssignIpv6Addresses",
+      "ec2:DescribeInstances",
+      "ec2:DescribeTags",
+      "ec2:DescribeNetworkInterfaces",
+      "ec2:DescribeInstanceTypes"
+    ]
+
+    resources = [
+      "*"
+    ]
+  }
+
+  statement {
+    sid = "tag"
+
+    actions = [
+      "ec2:CreateTags"
+    ]
+
+    resources = [
+      "arn:aws:ec2:*:*:network-interface/*"
+    ]
+  }
+}
+
+resource "aws_iam_policy" "vpc_cni_ipv6" {
+  name   = "eks-vpc-cni-ipv6"
+  path   = "/"
+  policy = data.aws_iam_policy_document.vpc_cni_ipv6.json
+
+  tags = {
+    "Name" = "eks-vpc-cni-ipv6"
+  }
+}

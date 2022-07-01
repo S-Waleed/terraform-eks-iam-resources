@@ -7,7 +7,7 @@ provider "kubernetes" {
     api_version = "client.authentication.k8s.io/v1alpha1"
     command     = "aws"
     # This requires the awscli to be installed locally where Terraform is executed
-    args = ["eks", "get-token", "--cluster-name", module.eks_blueprints.eks_cluster_id]
+    args = ["eks", "get-token", "--cluster-name", aws_eks_cluster.this.id]
   }
 }
 
@@ -62,31 +62,45 @@ module "aws_vpc" {
   }
 }
 
-module "eks_blueprints" {
-  source = "github.com/aws-ia/terraform-aws-eks-blueprints?ref=v4.0.4"
+# module "eks_blueprints" {
+#   source = "github.com/aws-ia/terraform-aws-eks-blueprints?ref=v4.0.4"
 
-  # EKS CLUSTER
-  cluster_version    = "1.22"
-  vpc_id             = module.aws_vpc.vpc_id          # Enter VPC ID
-  private_subnet_ids = module.aws_vpc.private_subnets # Enter Private Subnet IDs
-  environment        = var.environment
+#   # EKS CLUSTER
+#   cluster_version    = "1.22"
+#   vpc_id             = module.aws_vpc.vpc_id          # Enter VPC ID
+#   private_subnet_ids = module.aws_vpc.private_subnets # Enter Private Subnet IDs
+#   environment        = var.environment
 
-  # EKS MANAGED NODE GROUPS
-  # managed_node_groups = {
-  #   mg_t4 = {
-  #     node_group_name = "managed-SPOT"
-  #     capacity_type   = "SPOT" # ON_DEMAND or SPOT
-  #     instance_types  = ["t4.medium"]
-  #     subnet_ids      = module.aws_vpc.private_subnets
-  #     disk_size       = 5
-  #   }
-  # }
+#   # EKS MANAGED NODE GROUPS
+#   # managed_node_groups = {
+#   #   mg_t4 = {
+#   #     node_group_name = "managed-SPOT"
+#   #     capacity_type   = "SPOT" # ON_DEMAND or SPOT
+#   #     instance_types  = ["t4.medium"]
+#   #     subnet_ids      = module.aws_vpc.private_subnets
+#   #     disk_size       = 5
+#   #   }
+#   # }
 
-  # tags = {
-  #   jobfunction = "DevOps"
-  # }
+#   # tags = {
+#   #   jobfunction = "DevOps"
+#   # }
+
+#   depends_on = [
+#     module.aws_vpc
+#   ]
+# }
+
+
+resource "aws_eks_cluster" "this" {
+  name     = "role-tests"
+  role_arn = aws_iam_role.eks_cluster_role.arn
+
+  vpc_config {
+    subnet_ids = module.aws_vpc.private_subnets
+  }
 
   depends_on = [
-    module.aws_vpc
+    aws_iam_role.eks_cluster_role
   ]
 }

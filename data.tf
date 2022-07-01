@@ -7,5 +7,5 @@ data "http" "myip" {
 }
 
 data "aws_eks_cluster" "eks_cluster" {
-  name = module.eks_blueprints.eks_cluster_id
+  name = aws_eks_cluster.this.id
 }

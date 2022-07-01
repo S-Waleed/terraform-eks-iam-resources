@@ -67,13 +67,13 @@ module "vpc_cni_irsa" {
 }
 
 # Amazon EKS VPC CNI IRSA | IPV6
-module "vpc_cni_irsa_ipv6" {
-  source = "git@github.com:aws-ia/terraform-aws-eks-blueprints.git//modules/irsa?ref=v4.2.1"
+# module "vpc_cni_irsa_ipv6" {
+#   source = "git@github.com:aws-ia/terraform-aws-eks-blueprints.git//modules/irsa?ref=v4.2.1"
 
-  kubernetes_namespace              = "kube-system"
-  kubernetes_service_account        = "aws-node"
-  create_kubernetes_namespace       = false
-  create_kubernetes_service_account = false
-  irsa_iam_policies                 = []
-  addon_context                     = local.addon_context
-}
+#   kubernetes_namespace              = "kube-system"
+#   kubernetes_service_account        = "aws-node"
+#   create_kubernetes_namespace       = false
+#   create_kubernetes_service_account = false
+#   irsa_iam_policies                 = [aws_iam_policy.vpc_cni_ipv6.arn]
+#   addon_context                     = local.addon_context
+# }

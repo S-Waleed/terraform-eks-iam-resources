@@ -1,6 +1,6 @@
-# Amazon EKS IAM Policies 
+# Amazon EKS IAM Policies
 
-Various EKS IAM policies in Terraform.
+Various EKS IAM policies and AWS IAM roles in Terraform.
 
 <!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 ## Requirements

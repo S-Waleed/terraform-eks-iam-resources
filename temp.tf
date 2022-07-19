@@ -104,3 +104,32 @@ resource "aws_eks_cluster" "this" {
     aws_iam_role.eks_cluster_role
   ]
 }
+
+resource "aws_eks_node_group" "example" {
+  cluster_name    = aws_eks_cluster.this.name
+  node_group_name = "example"
+  node_role_arn   = aws_iam_role.eks_node_role.arn
+  subnet_ids      = module.aws_vpc.private_subnets
+  capacity_type   = "SPOT"
+  instance_types  = ["t3.small"]
+  disk_size       = 4
+  ami_type        = "AL2_x86_64"
+
+  scaling_config {
+    desired_size = 1
+    max_size     = 1
+    min_size     = 1
+  }
+
+  update_config {
+    max_unavailable = 1
+  }
+
+  # Ensure that IAM Role permissions are created before and deleted after EKS Node Group handling.
+  # Otherwise, EKS will not be able to properly delete EC2 Instances and Elastic Network Interfaces.
+  depends_on = [
+    aws_iam_role.eks_node_role
+  ]
+}
+
+# todo: Verify aws-node irsa

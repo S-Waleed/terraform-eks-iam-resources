@@ -60,7 +60,35 @@ module "aws_vpc" {
     "kubernetes.io/cluster/${local.cluster_name}" = "shared"
     "kubernetes.io/role/internal-elb"             = "1"
   }
+
+  # IPV6
+  enable_ipv6                     = true
+  assign_ipv6_address_on_creation = true
+
+  private_subnet_assign_ipv6_address_on_creation = false
+
+  public_subnet_ipv6_prefixes   = [0, 1, 2]
+  private_subnet_ipv6_prefixes  = [3, 3, 4]
+  database_subnet_ipv6_prefixes = [5, 6, 7]
 }
+
+# resource "aws_vpc_ipam" "example" {
+#   operating_regions {
+#     region_name = data.aws_region.current.name
+#   }
+# }
+
+# resource "aws_vpc_ipam_pool" "example" {
+#   address_family = "ipv6"
+#   ipam_scope_id  = aws_vpc_ipam.example.public_default_scope_id
+#   locale         = data.aws_region.current.name
+# }
+
+# resource "aws_vpc_ipv6_cidr_block_association" "test" {
+#   ipv6_ipam_pool_id = aws_vpc_ipam_pool.example.id
+#   ipv6_cidr_block   = "2600:1f16:626:a500::/56"
+#   vpc_id            = module.aws_vpc.vpc_id
+# }
 
 # module "eks_blueprints" {
 #   source = "github.com/aws-ia/terraform-aws-eks-blueprints?ref=v4.0.4"
@@ -101,35 +129,37 @@ resource "aws_eks_cluster" "this" {
   }
 
   depends_on = [
-    aws_iam_role.eks_cluster_role
+    aws_iam_role.eks_cluster_role,
+    module.aws_vpc
   ]
 }
 
-resource "aws_eks_node_group" "example" {
-  cluster_name    = aws_eks_cluster.this.name
-  node_group_name = "example"
-  node_role_arn   = aws_iam_role.eks_node_role.arn
-  subnet_ids      = module.aws_vpc.private_subnets
-  capacity_type   = "SPOT"
-  instance_types  = ["t3.small"]
-  disk_size       = 4
-  ami_type        = "AL2_x86_64"
+# resource "aws_eks_node_group" "example" {
+#   cluster_name    = aws_eks_cluster.this.name
+#   node_group_name = "example"
+#   node_role_arn   = aws_iam_role.eks_node_role.arn
+#   subnet_ids      = module.aws_vpc.private_subnets
+#   capacity_type   = "SPOT"
+#   instance_types  = ["t3.small"]
+#   disk_size       = 4
+#   ami_type        = "AL2_x86_64"
 
-  scaling_config {
-    desired_size = 1
-    max_size     = 1
-    min_size     = 1
-  }
+#   scaling_config {
+#     desired_size = 1
+#     max_size     = 1
+#     min_size     = 1
+#   }
 
-  update_config {
-    max_unavailable = 1
-  }
+#   update_config {
+#     max_unavailable = 1
+#   }
 
-  # Ensure that IAM Role permissions are created before and deleted after EKS Node Group handling.
-  # Otherwise, EKS will not be able to properly delete EC2 Instances and Elastic Network Interfaces.
-  depends_on = [
-    aws_iam_role.eks_node_role
-  ]
-}
+#   # Ensure that IAM Role permissions are created before and deleted after EKS Node Group handling.
+#   # Otherwise, EKS will not be able to properly delete EC2 Instances and Elastic Network Interfaces.
+#   depends_on = [
+#     aws_iam_role.eks_node_role,
+#     module.vpc_cni_irsa_role_ipv6
+#   ]
+# }
 
 # todo: Verify aws-node irsa

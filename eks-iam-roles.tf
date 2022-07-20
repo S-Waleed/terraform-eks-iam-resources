@@ -55,35 +55,35 @@ resource "aws_iam_role_policy_attachment" "eks_node_role" {
 }
 
 # Amazon EKS VPC CNI IRSA | IPV4
-module "vpc_cni_irsa" {
-  source = "git@github.com:aws-ia/terraform-aws-eks-blueprints.git//modules/irsa?ref=v4.2.1"
-
-  kubernetes_namespace              = "kube-system"
-  kubernetes_service_account        = "aws-node"
-  create_kubernetes_namespace       = false
-  create_kubernetes_service_account = false
-  irsa_iam_policies                 = ["arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy"]
-  addon_context                     = local.addon_context
-}
-
-resource "aws_iam_role_policy_attachment" "eks_node_role_cni" {
-  policy_arn = "arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy"
-  role       = aws_iam_role.eks_node_role.name
-}
-
-# Amazon EKS VPC CNI IRSA | IPV6
-# module "vpc_cni_irsa_role_ipv6" {
+# module "vpc_cni_irsa" {
 #   source = "git@github.com:aws-ia/terraform-aws-eks-blueprints.git//modules/irsa?ref=v4.2.1"
 
 #   kubernetes_namespace              = "kube-system"
 #   kubernetes_service_account        = "aws-node"
 #   create_kubernetes_namespace       = false
 #   create_kubernetes_service_account = false
-#   irsa_iam_policies                 = [aws_iam_policyvpc_cni_ipv6.arn]
+#   irsa_iam_policies                 = ["arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy"]
 #   addon_context                     = local.addon_context
 # }
 
 # resource "aws_iam_role_policy_attachment" "eks_node_role_cni" {
-#   policy_arn = aws_iam_policyvpc_cni_ipv6.arn
+#   policy_arn = "arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy"
+#   role       = aws_iam_role.eks_node_role.name
+# }
+
+# Amazon EKS VPC CNI IRSA | IPV6
+module "vpc_cni_irsa_role_ipv6" {
+  source = "git@github.com:aws-ia/terraform-aws-eks-blueprints.git//modules/irsa?ref=v4.2.1"
+
+  kubernetes_namespace              = "kube-system"
+  kubernetes_service_account        = "aws-node"
+  create_kubernetes_namespace       = false
+  create_kubernetes_service_account = false
+  irsa_iam_policies                 = [aws_iam_policy.vpc_cni_ipv6.arn]
+  addon_context                     = local.addon_context
+}
+
+# resource "aws_iam_role_policy_attachment" "eks_node_role_cni" {
+#   policy_arn = aws_iam_policy.vpc_cni_ipv6.arn
 #   role       = aws_iam_role.eks_node_role.name
 # }

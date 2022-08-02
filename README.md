@@ -1,6 +1,6 @@
-# Amazon EKS IAM Policies
+# Amazon EKS IAM resources
 
-Various EKS IAM policies and AWS IAM roles in Terraform. See [blog](https://cloudly.engineer/?p=1600) for details.
+Various Amazon EKS IAM policies and AWS IAM roles in Terraform. See [blog](https://cloudly.engineer/?p=1600) for details.
 
 <!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 ## Requirements

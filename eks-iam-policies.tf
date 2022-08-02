@@ -359,44 +359,42 @@ resource "aws_iam_policy" "cluster_version" {
 }
 
 # #########################################
-# Amazon VPC CNI IPV6
+# EKS Connector
 # #########################################
 
-data "aws_iam_policy_document" "vpc_cni_ipv6" {
+data "aws_iam_policy_document" "connector" {
 
   statement {
+    sid = "SsmControlChannel"
+
     actions = [
-      "ec2:AssignIpv6Addresses",
-      "ec2:DescribeInstances",
-      "ec2:DescribeTags",
-      "ec2:DescribeNetworkInterfaces",
-      "ec2:DescribeInstanceTypes"
+      "ssmmessages:CreateControlChannel"
     ]
 
     resources = [
-      "*"
+      "arn:aws:eks:*:*:cluster/*"
     ]
   }
 
   statement {
-    sid = "tag"
+    sid = "ssmDataplaneOperations"
 
     actions = [
-      "ec2:CreateTags"
+      "ssmmessages:CreateDataChannel",
+      "ssmmessages:OpenDataChannel",
+      "ssmmessages:OpenControlChannel"
     ]
 
-    resources = [
-      "arn:aws:ec2:*:*:network-interface/*"
-    ]
+    resources = ["*"]
   }
 }
 
-resource "aws_iam_policy" "vpc_cni_ipv6" {
-  name   = "eks-vpc-cni-ipv6"
+resource "aws_iam_policy" "connector" {
+  name   = "eks-connector"
   path   = "/"
-  policy = data.aws_iam_policy_document.vpc_cni_ipv6.json
+  policy = data.aws_iam_policy_document.connector.json
 
   tags = {
-    "Name" = "eks-vpc-cni-ipv6"
+    "Name" = "eks-connector"
   }
 }

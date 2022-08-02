@@ -6,8 +6,8 @@ provider "aws" {
     tags = {
       ManagedBy   = "Terraform"
       environment = var.environment
-      Owner       = "Waleed"
-      project-id  = "sales-123"
+      Owner       = ""
+      project-id  = ""
     }
   }
 }
